@@ -1422,7 +1422,13 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
         result |= AMOTION_EVENT_BUTTON_PRIMARY;
     }
     if (mBtnRight) {
-        result |= AMOTION_EVENT_BUTTON_SECONDARY;
+        char *targetProduct = new char[PROPERTY_VALUE_MAX];
+        property_get("ro.target.product", targetProduct, "");
+        if (strcmp(targetProduct, "box") == 0) {
+            result |= AMOTION_EVENT_BUTTON_BACK;
+        } else {
+            result |= AMOTION_EVENT_BUTTON_SECONDARY;
+        }
     }
     if (mBtnMiddle) {
         result |= AMOTION_EVENT_BUTTON_TERTIARY;
