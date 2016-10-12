@@ -1234,7 +1234,17 @@ void HWComposer::dump(String8& result) const {
                             "FB TARGET",
                             "SIDEBAND",
                             "HWC_CURSOR",
+#if RK_COMP_TYPE
+                            "HWC_TOWIN0",
+                            "HWC_TOWIN1",
+                            "HWC_LCDC",
+                            "HWC_NODRAW",
+                            "HWC_MIX",
+                            "HWC_MIX_V2",
+                            "blit"};
+#else
                             "UNKNOWN"};
+#endif
                     if (type >= NELEM(compositionTypeName))
                         type = NELEM(compositionTypeName) - 1;
 
