@@ -973,6 +973,9 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
         // layer yet, or if we ran out of memory
         layer.setBuffer(mActiveBuffer);
     }
+#if RK_LAYER_NAME
+    layer.setLayername(getName().string());
+#endif
 }
 #endif
 
@@ -1017,8 +1020,11 @@ void Layer::setAcquireFence(const sp<const DisplayDevice>& /* hw */,
 
     // TODO: there is a possible optimization here: we only need to set the
     // acquire fence the first time a new buffer is acquired on EACH display.
-
+#if RK_COMP_TYPE
+    if (layer.getCompositionType() != HWC_FRAMEBUFFER) {
+#else
     if (layer.getCompositionType() == HWC_OVERLAY || layer.getCompositionType() == HWC_CURSOR_OVERLAY) {
+#endif
         sp<Fence> fence = mSurfaceFlingerConsumer->getCurrentFence();
         if (fence->isValid()) {
             fenceFd = fence->dup();
