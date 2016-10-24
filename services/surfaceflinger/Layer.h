@@ -260,6 +260,11 @@ public:
     Rect computeBounds(const Region& activeTransparentRegion) const;
     Rect computeBounds() const;
 
+#if RK_HW_ROTATION
+    void setDrawingScreenshot(bool drawScreenshot) { mDrawingScreenshot = drawScreenshot; };
+    void computeHWGeometry(Transform& tr, const Transform& layerTransform, const sp<const DisplayDevice>& hw) const;
+#endif
+
     int32_t getSequence() const { return sequence; }
 
     // -----------------------------------------------------------------------
@@ -793,6 +798,9 @@ private:
     Vector<BufferItem> mQueueItems;
     std::atomic<uint64_t> mLastFrameNumberReceived;
     bool mUpdateTexImageFailed; // This is only accessed on the main thread.
+#if RK_HW_ROTATION
+    bool mDrawingScreenshot;
+#endif
 
     bool mAutoRefresh;
     bool mFreezeGeometryUpdates;

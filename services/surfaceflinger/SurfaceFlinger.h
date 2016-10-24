@@ -234,6 +234,15 @@ public:
     bool authenticateSurfaceTextureLocked(
         const sp<IGraphicBufferProducer>& bufferProducer) const;
 
+#if RK_HW_ROTATION
+    // see DisplayDevice::mHardwareOrientation
+    int mHardwareOrientation;
+    // Get hardware orientation
+    int getHardwareOrientation() const { return mHardwareOrientation; }
+
+    bool orientationSwap() const { return mHardwareOrientation % 2; }
+#endif
+
 private:
     friend class Client;
     friend class DisplayEventConnection;

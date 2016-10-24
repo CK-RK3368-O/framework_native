@@ -4393,6 +4393,7 @@ void SurfaceFlinger::renderScreenImplLocked(
             continue;
         }
         const Layer::State& state(layer->getDrawingState());
+
         if (state.z < minLayerZ || state.z > maxLayerZ) {
             continue;
         }
@@ -4401,7 +4402,13 @@ void SurfaceFlinger::renderScreenImplLocked(
                 return;
             }
             if (filtering) layer->setFiltering(true);
+#if RK_DRAW_SCREENSHOT
+            layer->setDrawingScreenshot(true);
+#endif
             layer->draw(hw, useIdentityTransform);
+#if RK_DRAW_SCREENSHOT
+            layer->setDrawingScreenshot(false);
+#endif
             if (filtering) layer->setFiltering(false);
         });
     }

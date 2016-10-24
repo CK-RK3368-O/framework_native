@@ -43,6 +43,11 @@
 #include <memory>
 #endif
 
+#if RK_SUPPORT
+#define RK_FORCE_SCALE_FULLSCREEN         (1)
+#define RK_HW_ROTATION                    (1)
+#endif
+
 struct ANativeWindow;
 
 namespace android {
@@ -96,8 +101,12 @@ public:
             const sp<DisplaySurface>& displaySurface,
             const sp<IGraphicBufferProducer>& producer,
             EGLConfig config,
+#if RK_HW_ROTATION
+            int hardwareOrientation,
+#endif
             bool supportWideColor);
     // clang-format on
+
 
     ~DisplayDevice();
 
@@ -129,11 +138,19 @@ public:
     void                    setLayerStack(uint32_t stack);
     void                    setDisplaySize(const int newWidth, const int newHeight);
     void                    setProjection(int orientation, const Rect& viewport, const Rect& frame);
-
+#if RK_HW_ROTATION
     int                     getOrientation() const { return mOrientation; }
+    int                     getHardwareRotation() const { return mOrientation; };
+#else
+    int                     getOrientation() const { return mOrientation; }
+#endif
     uint32_t                getOrientationTransform() const;
     static uint32_t         getPrimaryDisplayOrientationTransform();
     const Transform&        getTransform() const { return mGlobalTransform; }
+#if RK_HW_ROTATION
+    const Transform&        getTransform(bool shouldTransform) const { return shouldTransform ? mGlobalTransform : mRealGlobalTransform; }
+    const Transform&        getRealTransform() const { return mRealGlobalTransform; }
+#endif
     const Rect              getViewport() const { return mViewport; }
     const Rect              getFrame() const { return mFrame; }
     const Rect&             getScissor() const { return mScissor; }
@@ -254,6 +271,10 @@ private:
     uint32_t mLayerStack;
 
     int mOrientation;
+#if RK_HW_ROTATION
+    int mClientOrientation;
+    int mHardwareOrientation;
+#endif
     static uint32_t sPrimaryDisplayOrientation;
     // user-provided visible area of the layer stack
     Rect mViewport;
@@ -262,6 +283,9 @@ private:
     // pre-computed scissor to apply to the display
     Rect mScissor;
     Transform mGlobalTransform;
+#if RK_HW_ROTATION
+    Transform mRealGlobalTransform;
+#endif
     bool mNeedsFiltering;
     // Current power mode
     int mPowerMode;
