@@ -732,9 +732,15 @@ void Layer::setGeometry(
              to_string(error).c_str(), static_cast<int32_t>(error));
 #else
     if (!isOpaque(s) || getAlpha() != 0xFF) {
+#if !RK_USE_DRM
+        layer.setBlending((mPremultipliedAlpha ?
+                HWC_BLENDING_PREMULT :
+                HWC_BLENDING_COVERAGE) | s.alpha<<16);
+#else
         layer.setBlending(mPremultipliedAlpha ?
                 HWC_BLENDING_PREMULT :
                 HWC_BLENDING_COVERAGE);
+#endif
     }
 #endif
 
