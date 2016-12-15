@@ -181,6 +181,12 @@ void Layer::onFirstRef() {
     if (mFlinger->isLayerTripleBufferingDisabled()) {
         mProducer->setMaxDequeuedBufferCount(2);
     }
+ #if RK_USE_3_LAYER_BUFFER
+    else
+    {
+        mProducer->setMaxDequeuedBufferCount(3);
+    }
+ #endif
 
     const sp<const DisplayDevice> hw(mFlinger->getDefaultDisplayDevice());
     updateTransformHint(hw);

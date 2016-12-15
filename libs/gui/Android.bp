@@ -65,7 +65,8 @@ cc_library_shared {
     cflags: [
         "-DRK_SUPPORT=1",
         "-DRK_STEREO=1",
-        "-DRK_VR=0"
+        "-DRK_VR=0",
+	"-DRK_USE_3_FB=1",
     ],
 
     product_variables: {
