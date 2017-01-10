@@ -900,7 +900,6 @@ status_t BufferQueueProducer::queueBuffer(int slot,
         return BAD_VALUE;
     }
 
-
     auto acquireFenceTime = std::make_shared<FenceTime>(acquireFence);
 
 #if RK_STEREO
