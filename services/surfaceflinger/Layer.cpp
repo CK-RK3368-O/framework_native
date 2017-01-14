@@ -1129,8 +1129,9 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
 #if RK_LAYER_NAME
     layer.setLayername(getName().string());
 #endif
-#if RK_STEREO&!RK_VR
+#if RK_STEREO && !RK_VR
     layer.setAlreadyStereo(mSurfaceFlingerConsumer->getAlreadyStereo());
+    layer.initDisplayStereo();
 #endif
 }
 #endif
