@@ -95,13 +95,14 @@ endif
 ifeq ($(strip $(BOARD_USE_DRM)),true) 
 RK_USE_DRM = 1
 RK_USE_3_FB = 1
+RK_NV12_10_TO_NV12 = 1
 else
 RK_USE_DRM = 0
 RK_USE_3_FB = 0
 endif
 
 LOCAL_CFLAGS += -DRK_USE_DRM=$(RK_USE_DRM) -DRK_USE_3_FB=$(RK_USE_3_FB) -DRK_USE_3_LAYER_BUFFER=1 \
-		-DRK_BLACK_NV12_10_LAYER=1
+		-DRK_BLACK_NV12_10_LAYER=0 -DRK_NV12_10_TO_NV12=$(RK_NV12_10_TO_NV12)
 
 endif
 ########## End of RK_SUPPORT ##########
@@ -116,6 +117,8 @@ else
     LOCAL_SRC_FILES += \
         SurfaceFlinger_hwc1.cpp \
         DisplayHardware/HWComposer_hwc1.cpp
+    LOCAL_C_INCLUDES += \
+	hardware/rockchip/librga
 endif
 
 LOCAL_CFLAGS += -fvisibility=hidden -Werror=format
@@ -153,7 +156,8 @@ LOCAL_SHARED_LIBRARIES := \
     libsync \
     libprotobuf-cpp-lite \
     libbase \
-    android.hardware.power@1.0
+    android.hardware.power@1.0 \
+    librga
 
 LOCAL_EXPORT_SHARED_LIBRARY_HEADERS := \
     android.hardware.graphics.allocator@2.0 \

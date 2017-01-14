@@ -161,6 +161,7 @@ public:
     bool                    isPrimary() const { return mType == DISPLAY_PRIMARY; }
     int32_t                 getHwcDisplayId() const { return mHwcDisplayId; }
     const wp<IBinder>&      getDisplayToken() const { return mDisplayToken; }
+    EGLDisplay              getEglDisplay() const { return mDisplay; }
 
     // We pass in mustRecompose so we can keep VirtualDisplaySurface's state
     // machine happy without actually queueing a buffer if nothing has changed
