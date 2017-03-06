@@ -2311,6 +2311,12 @@ bool Layer::setPosition(float x, float y, bool immediate) {
         return false;
     mCurrentState.sequence++;
 
+    if (x > 117440511)
+        x = 117440511;
+
+    if (y > 117440511)
+        y = 117440511;
+
     // We update the requested and active position simultaneously because
     // we want to apply the position portion of the transform matrix immediately,
     // but still delay scaling when resizing a SCALING_MODE_FREEZE layer.
