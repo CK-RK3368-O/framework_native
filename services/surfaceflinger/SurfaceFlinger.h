@@ -76,9 +76,11 @@
 #include <thread>
 #include <utility>
 
-#define RK_FPS          (1)
-#define RK_WFD_OPT      (1)
-#define RK_CTS_GTS      (1)
+#define RK_FPS          	(1)
+/* Fix video splash bug when rotate video */
+#define RK_DELAY_FOR_CAPTURE 	(1)
+#define RK_WFD_OPT      	(1)
+#define RK_CTS_GTS      	(1)
 
 namespace android {
 
@@ -781,11 +783,14 @@ private:
     Daltonizer mDaltonizer;
 #ifndef USE_HWC2
     bool mDaltonize;
-#endif
-
 #if RK_FPS
     //add by rk for fps
     int mDebugFPS;
+#endif
+
+#if RK_DELAY_FOR_CAPTURE
+    int mDelayFlag;
+#endif
 #endif
 
     mat4 mPreviousColorMatrix;

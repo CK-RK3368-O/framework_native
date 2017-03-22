@@ -148,6 +148,9 @@ SurfaceFlinger::SurfaceFlinger()
         mPrimaryHWVsyncEnabled(false),
         mHWVsyncAvailable(false),
         mDaltonize(false),
+#if RK_DELAY_FOR_CAPTURE
+        mDelayFlag(0),
+#endif
         mHasColorMatrix(false),
         mHasPoweredOff(false),
         mFrameBuckets(),
@@ -1168,6 +1171,13 @@ void SurfaceFlinger::eventControl(int disp, int event, int enabled) {
 
 void SurfaceFlinger::onMessageReceived(int32_t what) {
     ATRACE_CALL();
+#if RK_DELAY_FOR_CAPTURE
+    if(mDelayFlag) {
+        usleep(20000);
+        mDelayFlag = 0;
+    }
+#endif
+
     switch (what) {
         case MessageQueue::INVALIDATE: {
             bool refreshNeeded = handleMessageTransaction();
@@ -4173,6 +4183,9 @@ void SurfaceFlinger::renderScreenImplLocked(
     // compositionComplete is needed for older driver
     hw->compositionComplete();
     hw->setViewportAndProjection();
+#if RK_DELAY_FOR_CAPTURE
+    mDelayFlag = 1;
+#endif
 }
 
 
