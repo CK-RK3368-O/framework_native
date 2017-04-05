@@ -22,6 +22,7 @@ cc_library_shared {
         "SensorRecord.cpp",
         "SensorService.cpp",
         "SensorServiceUtils.cpp",
+        "MyTransform.cpp",
     ],
 
     cflags: [
@@ -48,7 +49,16 @@ cc_library_shared {
         "android.hardware.sensors@1.0",
     ],
 
-    static_libs: ["android.hardware.sensors@1.0-convert"],
+    static_libs: [
+        "android.hardware.sensors@1.0-convert",
+        "libarect",
+        "libmath",
+    ],
+
+    export_static_lib_headers: [
+        "libarect",
+        "libmath",
+    ],
 
     // our public headers depend on libsensor
     export_shared_lib_headers: ["libsensor"],
