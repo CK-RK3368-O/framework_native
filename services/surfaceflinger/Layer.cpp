@@ -124,6 +124,7 @@ Layer::Layer(SurfaceFlinger* flinger, const sp<Client>& client,
         mQueueItems(),
         mLastFrameNumberReceived(0),
         mUpdateTexImageFailed(false),
+        mDrawingScreenshot(false),
         mAutoRefresh(false),
         mFreezeGeometryUpdates(false)
 {
@@ -2038,13 +2039,15 @@ void Layer::computeGeometry(const sp<const DisplayDevice>& hw, Mesh& mesh,
 
 #if RK_HW_ROTATION
     Transform tr(hw->getTransform());
+    const Transform identity;
 #else
     const Transform tr(hw->getTransform());
 #endif
 
+    D("mDrawingScreenshot : %d, useIdentityTransform : %d.", mDrawingScreenshot, useIdentityTransform);
 #if RK_HW_ROTATION
     if (mDrawingScreenshot) {
-        computeHWGeometry(tr, s.active.transform, hw);
+        computeHWGeometry(tr, identity, hw);
     }
 #endif
 
@@ -2079,7 +2082,9 @@ void Layer::computeGeometry(const sp<const DisplayDevice>& hw, Mesh& mesh,
 }
 
 #if RK_HW_ROTATION
-void Layer::computeHWGeometry(Transform& tr, const Transform& layerTransform, const sp<const DisplayDevice>& hw) const
+void Layer::computeHWGeometry(Transform& tr,
+                              const Transform& layerTransform,
+                              const sp<const DisplayDevice>& hw) const
 {
     int hwrotation = mFlinger->getHardwareOrientation();
     int hw_offset = hw->getWidth() - hw->getHeight();
