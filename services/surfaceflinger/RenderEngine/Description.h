@@ -52,6 +52,8 @@ class Description {
     mat4 mProjectionMatrix;
 
     bool mColorMatrixEnabled;
+    bool mHdr = false;
+    Texture mMRatioTexture;
     mat4 mColorMatrix;
 
     bool mIsWideGamut;
@@ -64,10 +66,12 @@ public:
     void setPremultipliedAlpha(bool premultipliedAlpha);
     void setOpaque(bool opaque);
     void setTexture(const Texture& texture);
+    void setMRatioTexture(const Texture& texture);
     void disableTexture();
     void setColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
     void setProjectionMatrix(const mat4& mtx);
     void setColorMatrix(const mat4& mtx);
+    void setHdr(bool deformstus);
     const mat4& getColorMatrix() const;
     void setWideGamut(bool wideGamut);
 };
