@@ -93,7 +93,7 @@ DisplayDevice::DisplayDevice(
         const sp<DisplaySurface>& displaySurface,
         const sp<IGraphicBufferProducer>& producer,
         EGLConfig config,
-#if RK_HW_ROTATION
+#if !RK_VR & RK_HW_ROTATION
         int hardwareOrientation,
 #endif
         bool supportWideColor
@@ -116,7 +116,7 @@ DisplayDevice::DisplayDevice(
       mIsSecure(isSecure),
       mLayerStack(NO_LAYER_STACK),
       mOrientation(),
-#if RK_HW_ROTATION
+#if !RK_VR & RK_HW_ROTATION
       mHardwareOrientation(hardwareOrientation),
 #endif
       mPowerMode(HWC_POWER_MODE_OFF),

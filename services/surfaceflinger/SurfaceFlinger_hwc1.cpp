@@ -590,7 +590,7 @@ void SurfaceFlinger::init() {
                     type, hwcId, mHwc->getFormat(hwcId), isSecure, token,
                     fbs, producer,
                     mRenderEngine->getEGLConfig(),
-#if RK_HW_ROTATION
+#if !RK_VR & RK_HW_ROTATION
                     mHardwareOrientation,
 #endif
                     false);
@@ -2005,7 +2005,7 @@ void SurfaceFlinger::handleTransactionLocked(uint32_t transactionFlags)
                                 mHwc->getFormat(hwcDisplayId), state.isSecure,
                                 display, dispSurface, producer,
                                 mRenderEngine->getEGLConfig(),
-#if RK_HW_ROTATION
+#if !RK_VR & RK_HW_ROTATION
                                 mHardwareOrientation,
 #endif
                                 false);

@@ -28,6 +28,11 @@ class BufferQueueProducer : public BnGraphicBufferProducer,
                             private IBinder::DeathRecipient {
 public:
     friend class BufferQueue; // Needed to access binderDied
+#if RK_VR
+    sp<GraphicBuffer> FbrgraphicBuffer;
+    int bufferchanged;
+    int test_cnt;
+#endif
 
     BufferQueueProducer(const sp<BufferQueueCore>& core, bool consumerIsSurfaceFlinger = false);
     ~BufferQueueProducer() override;
