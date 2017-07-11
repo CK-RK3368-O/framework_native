@@ -87,6 +87,20 @@ struct DisplayViewport {
         deviceHeight = height;
         uniqueId.clear();
     }
+    void copyFrom(const DisplayViewport& other) {
+        displayId = other.displayId;
+        orientation = other.orientation;
+        logicalLeft = other.logicalLeft;
+        logicalTop = other.logicalTop;
+        logicalRight = other.logicalRight;
+        logicalBottom = other.logicalBottom;
+        physicalLeft = other.physicalLeft;
+        physicalTop = other.physicalTop;
+        physicalRight = other.physicalRight;
+        physicalBottom = other.physicalBottom;
+        deviceWidth = other.deviceWidth;
+        deviceHeight = other.deviceHeight;
+    }
 };
 
 /**
