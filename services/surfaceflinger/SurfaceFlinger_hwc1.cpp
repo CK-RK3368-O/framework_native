@@ -181,9 +181,13 @@ SurfaceFlinger::SurfaceFlinger()
     useHwcForRgbToYuv = getBool< ISurfaceFlingerConfigs,
             &ISurfaceFlingerConfigs::useHwcForRGBtoYUV>(false);
 
+#if RK_USE_3_FB
+    maxFrameBufferAcquiredBuffers = getInt64< ISurfaceFlingerConfigs,
+            &ISurfaceFlingerConfigs::maxFrameBufferAcquiredBuffers>(3);
+#else
     maxFrameBufferAcquiredBuffers = getInt64< ISurfaceFlingerConfigs,
             &ISurfaceFlingerConfigs::maxFrameBufferAcquiredBuffers>(2);
-
+#endif
     char value[PROPERTY_VALUE_MAX];
 
     property_get("ro.bq.gpu_to_cpu_unsupported", value, "0");
