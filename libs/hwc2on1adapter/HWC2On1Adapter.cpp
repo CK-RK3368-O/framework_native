@@ -2145,6 +2145,17 @@ void HWC2On1Adapter::Layer::applyCommonState(hwc_layer_1_t& hwc1Layer) {
         hwc1Layer.sourceCropi.bottom =
                 static_cast<int32_t>(std::floor(pending.bottom));
     } else {
+#if !RK_USE_DRM
+        auto pending = mSourceCrop;
+        hwc1Layer.sourceCropi.left =
+                static_cast<int32_t>(std::ceil(pending.left));
+        hwc1Layer.sourceCropi.top =
+                static_cast<int32_t>(std::ceil(pending.top));
+        hwc1Layer.sourceCropi.right =
+                static_cast<int32_t>(std::floor(pending.right));
+        hwc1Layer.sourceCropi.bottom =
+                static_cast<int32_t>(std::floor(pending.bottom));
+#endif
         hwc1Layer.sourceCropf = mSourceCrop;
     }
 

@@ -787,6 +787,8 @@ private:
     Daltonizer mDaltonizer;
 #ifndef USE_HWC2
     bool mDaltonize;
+#endif
+
 #if RK_FPS
     //add by rk for fps
     int mDebugFPS;
@@ -795,8 +797,6 @@ private:
 #if RK_DELAY_FOR_CAPTURE
     int mDelayFlag;
 #endif
-#endif
-
     mat4 mPreviousColorMatrix;
     mat4 mColorMatrix;
     bool mHasColorMatrix;

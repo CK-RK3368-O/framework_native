@@ -85,7 +85,7 @@ public:
     // have a stable sort order when their layer stack and Z-order are
     // the same.
     int32_t sequence;
-
+#ifndef USE_HWC2
 #if RK_STEREO
     int32_t displayStereo;
 #endif
@@ -93,7 +93,7 @@ public:
 #if RK_VR
     mutable int mStereoMode;
 #endif
-
+#endif
     enum { // flags for doTransaction()
         eDontUpdateGeometryState = 0x00000001,
         eVisibleRegion = 0x00000002,
@@ -333,6 +333,9 @@ public:
     void setGeometry(const sp<const DisplayDevice>& displayDevice, uint32_t z);
     void forceClientComposition(int32_t hwcId);
     void setPerFrameData(const sp<const DisplayDevice>& displayDevice);
+#if 0 //RK_STEREO
+    void setDisplayStereo(const sp<const DisplayDevice>& displayDevice);
+#endif
 
     // callIntoHwc exists so we can update our local state and call
     // acceptDisplayChanges without unnecessarily updating the device's state

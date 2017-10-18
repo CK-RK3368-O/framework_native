@@ -131,12 +131,14 @@ LOCAL_ARM_MODE := arm
 endif
 ########## End of RK_SUPPORT ##########
 
-TARGET_USES_HWC2 := false
+TARGET_USES_HWC2 := true
 ifeq ($(TARGET_USES_HWC2),true)
     LOCAL_CFLAGS += -DUSE_HWC2
     LOCAL_SRC_FILES += \
         SurfaceFlinger.cpp \
         DisplayHardware/HWComposer.cpp
+    LOCAL_C_INCLUDES += \
+	hardware/rockchip/librga
 else
     LOCAL_SRC_FILES += \
         SurfaceFlinger_hwc1.cpp \

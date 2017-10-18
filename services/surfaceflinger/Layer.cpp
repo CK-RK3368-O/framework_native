@@ -820,8 +820,13 @@ void Layer::setGeometry(
 #ifdef USE_HWC2
     auto blendMode = HWC2::BlendMode::None;
     if (!isOpaque(s) || getAlpha() != 1.0f) {
+#if !RK_USE_DRM
+        blendMode = ((mPremultipliedAlpha ?
+                HWC2::BlendMode::Premultiplied : HWC2::BlendMode::Coverage) | s.alpha<<16);
+#else
         blendMode = mPremultipliedAlpha ?
                 HWC2::BlendMode::Premultiplied : HWC2::BlendMode::Coverage;
+#endif
     }
     auto error = hwcLayer->setBlendMode(blendMode);
     ALOGE_IF(error != HWC2::Error::None, "[%s] Failed to set blend mode %s:"
@@ -978,9 +983,28 @@ void Layer::setGeometry(
     const uint32_t orientation = transform.getOrientation();
 #ifdef USE_HWC2
     if (orientation & Transform::ROT_INVALID) {
+#if RK_OPT_DVFS
+        if (dvfs_stat == 0
+#if SF_RK3399
+            && shouldEnforceGpuHighPerformance()
+#endif
+        )
+        {
+            ALOGI("start forcing gpu high performance.");
+            optimizationDvfs(1);
+            dvfs_stat = 1;
+        }
+#endif
         // we can only handle simple transformation
         hwcInfo.forceClientComposition = true;
     } else {
+#if RK_OPT_DVFS
+        if (dvfs_stat == 1) {
+            ALOGI("stop forcing gpu high performance.");
+            optimizationDvfs(0);
+            dvfs_stat = 0;
+        }
+#endif
         auto transform = static_cast<HWC2::Transform>(orientation);
         auto error = hwcLayer->setTransform(transform);
         ALOGE_IF(error != HWC2::Error::None, "[%s] Failed to set transform %s: "
@@ -1121,8 +1145,26 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& displayDevice) {
                 mActiveBuffer->handle, to_string(error).c_str(),
                 static_cast<int32_t>(error));
     }
-}
 
+#if RK_LAYER_NAME
+    hwcLayer->setLayername(getName().string());
+#endif
+#if 0 //RK_STEREO
+    hwcLayer->setAlreadyStereo(mSurfaceFlingerConsumer->getAlreadyStereo());
+    hwcLayer->initDisplayStereo();
+#endif
+}
+#if 0 //RK_STEREO
+void Layer::setDisplayStereo(const sp<const DisplayDevice>& displayDevice)
+{
+    auto hwcId = displayDevice->getHwcDisplayId();
+    auto& hwcInfo = mHwcLayers[hwcId];
+    auto& hwcLayer = hwcInfo.layer;
+
+
+    displayStereo = hwcLayer->getDisplayStereo();
+}
+#endif
 #else
 void Layer::setPerFrameData(const sp<const DisplayDevice>& hw,
         HWComposer::HWCLayerInterface& layer) {
@@ -1761,6 +1803,7 @@ void Layer::clearWithOpenGL(const sp<const DisplayDevice>& hw,
     RenderEngine& engine(mFlinger->getRenderEngine());
     computeGeometry(hw, mMesh, false);
     engine.setupFillWithColor(red, green, blue, alpha);
+#ifndef USE_HWC2
 #if RK_VR
     setStereoDrawVR(hw, engine, mMesh,
         mSurfaceFlingerConsumer->getAlreadyStereo()/*getStereoModeToDraw()*/, displayStereo);
@@ -1768,7 +1811,7 @@ void Layer::clearWithOpenGL(const sp<const DisplayDevice>& hw,
     setStereoDraw(hw, engine, mMesh,
         mSurfaceFlingerConsumer->getAlreadyStereo(), displayStereo);
 #endif
-
+#endif
     engine.drawMesh(mMesh);
 }
 
@@ -1839,7 +1882,7 @@ void Layer::drawWithOpenGL(const sp<const DisplayDevice>& hw,
     }
 #endif
 
-
+#ifndef USE_HWC2
 #if RK_VR
     setStereoDrawVR(hw, engine, mMesh,
         mSurfaceFlingerConsumer->getAlreadyStereo()/*getStereoModeToDraw()*/, displayStereo);
@@ -1847,7 +1890,7 @@ void Layer::drawWithOpenGL(const sp<const DisplayDevice>& hw,
     setStereoDraw(hw, engine, mMesh,
         mSurfaceFlingerConsumer->getAlreadyStereo(), displayStereo);
 #endif
-
+#endif
     engine.drawMesh(mMesh);
     engine.disableBlending();
 #if RK_HDR
