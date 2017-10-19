@@ -484,19 +484,22 @@ Error HWC2On1Adapter::registerCallback(Callback descriptor,
     if (hasPendingInvalidate) {
         auto refresh = reinterpret_cast<HWC2_PFN_REFRESH>(pointer);
         for (auto displayId : displayIds) {
-            refresh(callbackData, displayId);
+            if(refresh)
+                refresh(callbackData, displayId);
         }
     }
     if (!pendingVsyncs.empty()) {
         auto vsync = reinterpret_cast<HWC2_PFN_VSYNC>(pointer);
         for (auto& pendingVsync : pendingVsyncs) {
-            vsync(callbackData, pendingVsync.first, pendingVsync.second);
+            if(vsync)
+                vsync(callbackData, pendingVsync.first, pendingVsync.second);
         }
     }
     if (!pendingHotplugs.empty()) {
         auto hotplug = reinterpret_cast<HWC2_PFN_HOTPLUG>(pointer);
         for (auto& pendingHotplug : pendingHotplugs) {
-            hotplug(callbackData, pendingHotplug.first, pendingHotplug.second);
+            if(hotplug)
+                hotplug(callbackData, pendingHotplug.first, pendingHotplug.second);
         }
     }
     return Error::None;
@@ -2587,7 +2590,8 @@ void HWC2On1Adapter::hwc1Vsync(int hwc1DisplayId, int64_t timestamp) {
     lock.unlock();
 
     auto vsync = reinterpret_cast<HWC2_PFN_VSYNC>(callbackInfo.pointer);
-    vsync(callbackInfo.data, displayId, timestamp);
+    if(vsync)
+        vsync(callbackInfo.data, displayId, timestamp);
 }
 
 void HWC2On1Adapter::hwc1Hotplug(int hwc1DisplayId, int connected) {
