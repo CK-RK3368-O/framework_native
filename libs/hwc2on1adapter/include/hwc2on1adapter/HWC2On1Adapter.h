@@ -598,7 +598,7 @@ private:
             hwc_frect_t mSourceCrop;
             HWC2::Transform mTransform;
             std::vector<hwc_rect_t> mVisibleRegion;
-
+            android_dataspace_t mDataSpace;
             uint32_t mZ;
 
             DeferredFence mReleaseFence;
