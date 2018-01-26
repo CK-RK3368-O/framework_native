@@ -505,6 +505,10 @@ private:
     /* ------------------------------------------------------------------------
      * Display and layer stack management
      */
+    status_t updateDimensionsLocked(const sp<const DisplayDevice>& displayDevice,
+                                    Transform::orientation_flags rotation,
+                                    uint32_t* requestedWidth, uint32_t* requestedHeight);
+
     // called when starting, or restarting after system_server death
     void initializeDisplays();
 
