@@ -2301,21 +2301,23 @@ void Layer::computeGeometry(const sp<const DisplayDevice>& hw, Mesh& mesh,
 {
     const Layer::State& s(getDrawingState());
 
-    const Transform hwTransform(hw->getTransform());
-    const uint32_t hw_h = hw->getHeight();
-    Rect win = computeBounds();
-
 #if RK_HW_ROTATION
-    Transform tr(hw->getTransform());
+    Transform hwTransform(hw->getTransform());
     const Transform identity;
 #else
-    const Transform tr(hw->getTransform());
+    const Transform hwTransform(hw->getTransform());
 #endif
+    uint32_t hw_h = hw->getHeight();
 
-    D("mDrawingScreenshot : %d, useIdentityTransform : %d.", mDrawingScreenshot, useIdentityTransform);
+    Rect win = computeBounds();
+
+    D("mDrawingScreenshot : %d, useIdentityTransform : %d; hw_h : %u.",
+      mDrawingScreenshot,
+      useIdentityTransform,
+      hw_h);
 #if RK_HW_ROTATION
     if (mDrawingScreenshot) {
-        computeHWGeometry(tr, identity, hw);
+        computeHWGeometry(hwTransform, identity, hw);
     }
 #endif
 
