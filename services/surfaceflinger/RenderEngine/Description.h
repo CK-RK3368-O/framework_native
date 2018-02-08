@@ -38,25 +38,25 @@ class Description {
     // value of the plane-alpha, between 0 and 1
     GLclampf mPlaneAlpha;
     // whether textures are premultiplied
-    bool mPremultipliedAlpha;
+    bool mPremultipliedAlpha = false;
     // whether this layer is marked as opaque
-    bool mOpaque;
+    bool mOpaque = false;
 
     // Texture this layer uses
     Texture mTexture;
-    bool mTextureEnabled;
+    bool mTextureEnabled = false;
 
     // color used when texturing is disabled
     GLclampf mColor[4];
     // projection matrix
     mat4 mProjectionMatrix;
 
-    bool mColorMatrixEnabled;
+    bool mColorMatrixEnabled = false;
     bool mHdr = false;
     Texture mMRatioTexture;
     mat4 mColorMatrix;
 
-    bool mIsWideGamut;
+    bool mIsWideGamut = false;
 
 public:
     Description();
