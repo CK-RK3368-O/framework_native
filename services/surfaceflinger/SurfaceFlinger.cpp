@@ -301,6 +301,12 @@ SurfaceFlinger::SurfaceFlinger()
     mLayerTripleBufferingDisabled = atoi(value);
     ALOGI_IF(mLayerTripleBufferingDisabled, "Disabling Triple Buffering");
 
+#if RK_LOW_MEM_SUPPORT
+    mMemTotal = get_mem_total();
+    //If ddr is lower or equal 1G, we regrad it as low memory platform.
+    mIsLowMemPlatform = (mMemTotal <= 1.0)?true:false;
+#endif
+
     // We should be reading 'persist.sys.sf.color_saturation' here
     // but since /data may be encrypted, we need to wait until after vold
     // comes online to attempt to read the property. The property is
@@ -762,6 +768,45 @@ void SurfaceFlinger::debugShowFPS() const
         ALOGD("mFps = %2.3f", mFps);
     }
 }
+#endif
+
+#ifdef USE_HWC2
+#if RK_LOW_MEM_SUPPORT
+float SurfaceFlinger::get_mem_total ()
+{
+    FILE *fd;
+    char buff[256];
+
+    MemTotal_t *mem_info=(MemTotal_t *)malloc(sizeof(MemTotal_t));;
+
+    fd = fopen ("/proc/meminfo", "r");
+
+    if(fd == NULL)
+    {
+      ALOGE("Open meminfo fail");
+      return 0;
+    }
+
+    //get first line
+    fgets (buff, sizeof(buff), fd);
+    //parse first line
+    if(sscanf (buff, "%s %lu %s\n", mem_info->total_name, &mem_info->total_value, mem_info->unit_name) != 3)
+    {
+      ALOGE("%s:line=%d get meminfo fail", __FUNCTION__, __LINE__);
+      return 0;
+    }
+
+    fclose(fd);
+
+    //unit is Gbytes
+    return (mem_info->total_value / (1024.0 * 1024.0));
+}
+
+bool SurfaceFlinger::isLowMemoryPlatform()
+{
+  return mIsLowMemPlatform;
+}
+#endif
 #endif
 
 bool SurfaceFlinger::authenticateSurfaceTexture(
