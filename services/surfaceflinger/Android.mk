@@ -82,6 +82,9 @@ endif
 ifeq ($(strip $(TARGET_BOARD_PLATFORM)),rk322x)
         LOCAL_CFLAGS +=  -DSF_RK322X
 endif
+ifeq ($(strip $(TARGET_BOARD_PLATFORM)),rk3128h)
+        LOCAL_CFLAGS +=  -DSF_RK322X
+endif
 
 ifeq ($(strip $(TARGET_BOARD_PLATFORM)),sofia3gr)
 LOCAL_CFLAGS += -DUSE_X86
