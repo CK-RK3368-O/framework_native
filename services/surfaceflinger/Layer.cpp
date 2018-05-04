@@ -1343,20 +1343,8 @@ void Layer::setPerFrameData(const sp<const DisplayDevice>& displayDevice) {
 
     uint32_t hwcSlot = 0;
     sp<GraphicBuffer> hwcBuffer;
-#if RK_LOW_MEM_SUPPORT
-    if(mFlinger->isLowMemoryPlatform())
-    {
-      //rk: disable hwc buffer cache in low memory platform.
-      //    otherwize it will oom when loop play 4K/1080p videos.
-      hwcInfo.bufferCache.getHwcBuffer(0, mActiveBuffer,
-              &hwcSlot, &hwcBuffer);
-    }
-    else
-#endif
-    {
-      hwcInfo.bufferCache.getHwcBuffer(mActiveBufferSlot, mActiveBuffer,
-              &hwcSlot, &hwcBuffer);
-    }
+    hwcInfo.bufferCache.getHwcBuffer(mActiveBufferSlot, mActiveBuffer,
+            &hwcSlot, &hwcBuffer);
 
     auto acquireFence = mSurfaceFlingerConsumer->getCurrentFence();
     error = hwcLayer->setBuffer(hwcSlot, hwcBuffer, acquireFence);

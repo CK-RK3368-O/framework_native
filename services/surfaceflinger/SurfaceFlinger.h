@@ -110,17 +110,6 @@ enum {
     eTransactionMask          = 0x07
 };
 
-#ifdef USE_HWC2
-#if RK_LOW_MEM_SUPPORT
-typedef struct tagMemTotal
-{
-        char total_name[20];
-        unsigned long total_value;
-        char unit_name[20];
-}MemTotal_t;
-#endif
-#endif
-
 class SurfaceFlinger : public BnSurfaceComposer,
                        private IBinder::DeathRecipient,
 #ifdef USE_HWC2
@@ -238,13 +227,6 @@ public:
     void debugShowFPS() const;
 #endif
 
-#ifdef USE_HWC2
-#if RK_LOW_MEM_SUPPORT
-    //get ddr memory.  Memory Unit is Gbytes
-    float get_mem_total ();
-    bool isLowMemoryPlatform();
-#endif
-#endif
     // for debugging only
     // TODO: this should be made accessible only to HWComposer
     const Vector< sp<Layer> >& getLayerSortedByZForHwcDisplay(int id);
@@ -871,10 +853,6 @@ private:
     // use to differentiate callbacks from different hardware composer
     // instances. Each hardware composer instance gets a different sequence id.
     int32_t mComposerSequenceId;
-#if RK_LOW_MEM_SUPPORT
-    float mMemTotal = 0.0;
-    bool mIsLowMemPlatform = false;
-#endif
 #endif
 
     float mSaturation = 1.0f;
