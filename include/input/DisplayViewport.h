@@ -100,6 +100,7 @@ struct DisplayViewport {
         physicalBottom = other.physicalBottom;
         deviceWidth = other.deviceWidth;
         deviceHeight = other.deviceHeight;
+        uniqueId = other.uniqueId;
     }
 };
 
