@@ -16,19 +16,8 @@
 #include "SensorDevice.h"
 #include "SensorService.h"
 
-// #define ENABLE_DEBUG_LOG
-#include <log/custom_log.h>
-
 #include <android-base/logging.h>
 #include <sensors/convert.h>
-
-#include <inttypes.h>
-#include <math.h>
-#include <stdint.h>
-#include <sys/types.h>
-
-#include <cutils/properties.h>
-
 #include <utils/Atomic.h>
 #include <utils/Errors.h>
 #include <utils/Singleton.h>
@@ -128,10 +117,6 @@ bool SensorDevice::connectHidlService() {
                 (initStep == 0) ? "getService()" : "poll() check", retry);
         std::this_thread::sleep_for(RETRY_DELAY);
     }
-
-    mTransformForPreRotation.set(getOrientationOfDisplaySawBySfClient(), 0, 0);
-    mTransformForPreRotation.dump("transform_for_pre_rotation");
-
     return (mSensors != nullptr);
 }
 
@@ -210,27 +195,7 @@ ssize_t SensorDevice::poll(sensors_event_t* buffer, size_t count) {
                     } else {
                         err = StatusFromResult(result);
                     }
-                    });
-
-        for ( size_t i = 0; i < count; i++ )
-        {
-            sensors_event_t* event = &(buffer[i]);
-
-            /* 若当前 event 来自 accelerometer_sensor, 则... */
-            if ( SENSOR_TYPE_ACCELEROMETER == event->type )
-            {
-                /* 根据当前的 pre_rotation 调整 data_from_acce_sensor. */
-                transformDataFromAcceSensorForPreRotation(event);
-                // .KP : 本操作的前提条件是 accelerometer sensor 数据在 original_display 下(无 pre_rotation) 调校正确.
-
-                D("after prerotation, type : %d, x : %f, y : %f, z : %f", event->type,
-                        event->acceleration.v[0],
-                        event->acceleration.v[1],
-                        event->acceleration.v[2]);
-
-                break;
-            }
-        }
+                });
 
         if (ret.isOk())  {
             hidlTransportError = false;
@@ -425,49 +390,6 @@ bool SensorDevice::isClientDisabled(void* ident) {
 
 bool SensorDevice::isClientDisabledLocked(void* ident) {
     return mDisabledClients.indexOf(ident) >= 0;
-}
-
-/**
- * 根据 属性 "ro.sf.hwrotation" 的 value, 对 'mTransformForPreRotation' 初始化.
- */
-MyTransform::orientation_flags_t SensorDevice::getOrientationOfDisplaySawBySfClient()
-{
-    char value[PROPERTY_VALUE_MAX];
-
-    property_get("ro.sf.hwrotation", value, "0");
-    switch ( atoi(value) / 90 )
-    {
-        case 0:
-            return MyTransform::ROT_0;
-        case 1:
-            return MyTransform::ROT_90;
-            // .KP : sensor 数据的 x, y 分量 使用 default_2d_descartes_coordinate_system 坐标系,
-            //          和 android_2d_coordinate_system_pattern 不同.
-            //       变换 "ROT_90", 在 default_2d_descartes_coordinate_system 上对应 坐标轴 "顺时针" 转过 90 度的 坐标系变换.
-        case 2:
-            return MyTransform::ROT_180;
-        case 3:
-            return MyTransform::ROT_270;
-        default:
-            E("invalid value of ro.sf.hwrotation : %s", value);
-            return MyTransform::ROT_0;
-            break;
-    }
-}
-
-/**
- * 将 'event' 中的, original_display 坐标系下的 data_from_acce_sensor,
- * 转换到 display_saw_by_sf_clients 定义的坐标系下.
- *
- * 调用者必须保证 'event' 中的数据来自 acce_sensor.
- */
-void SensorDevice::transformDataFromAcceSensorForPreRotation(sensors_event_t* event)
-{
-    /* 将 x, y 分量变换到基于 display_saw_by_sf_clients 的坐标系. */
-    vec2 src(event->acceleration.v[0], event->acceleration.v[1]);
-    vec2 dest = mTransformForPreRotation.transform(src);
-    event->acceleration.v[0] = dest.x;
-    event->acceleration.v[1] = dest.y;
 }
 
 void SensorDevice::enableAllSensors() {
