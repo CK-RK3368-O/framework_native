@@ -641,7 +641,12 @@ void DisplayDevice::setProjection(int orientation,
     if (!frame.isValid()) {
         // the destination frame can be invalid if it has never been set,
         // in that case we assume the whole display frame.
-        frame = Rect(w, h);
+        if ( !(mFlinger->orientationSwap() ) ) {
+            frame = Rect(w, h);
+        }
+        else { // 若 pre_rotated_display 和 original_display(physical_display) 的 w, h 要互换, 则...
+            frame = Rect(h, w);
+        }
     }
 
     if (viewport.isEmpty()) {
