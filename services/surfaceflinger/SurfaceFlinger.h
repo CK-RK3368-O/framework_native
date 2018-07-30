@@ -119,7 +119,6 @@ class SurfaceFlinger : public BnSurfaceComposer,
 #endif
 {
 public:
-
     // This is the phase offset in nanoseconds of the software vsync event
     // relative to the vsync event reported by HWComposer.  The software vsync
     // event is when SurfaceFlinger and Choreographer-based applications run each
@@ -252,6 +251,7 @@ public:
 #endif
 
 private:
+    bool mIsSkipThisFrame = false;
     friend class Client;
     friend class DisplayEventConnection;
     friend class EventThread;
@@ -593,6 +593,7 @@ private:
     void setUpHWComposer();
     void doComposition();
     void doDebugFlashRegions();
+    bool skipFramesBeforRotate(const sp<const DisplayDevice>& displayDevice, int& index, int skipFrameNum);
     void doDisplayComposition(const sp<const DisplayDevice>& displayDevice, const Region& dirtyRegion);
 
     // compose surfaces for display hw. this fails if using GL and the surface

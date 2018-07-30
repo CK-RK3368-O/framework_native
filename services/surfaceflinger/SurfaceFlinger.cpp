@@ -95,6 +95,7 @@ extern eeColor::APIFunctions gEEColorAPIFunctions;
 #endif
 
 #define DISPLAY_COUNT       1
+#define SKIP_FRAMES         1
 
 /*
  * DEBUG_SCREENSHOTS: set to true to check that screenshots are not all
@@ -1957,6 +1958,8 @@ void SurfaceFlinger::setUpHWComposer() {
     ATRACE_CALL();
     ALOGV("setUpHWComposer");
 
+    static int frameIndex = 0;
+
     for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
         bool dirty = !mDisplays[dpy]->getDirtyRegion(false).isEmpty();
         bool empty = mDisplays[dpy]->getVisibleLayersSortedByZ().size() == 0;
@@ -2024,6 +2027,7 @@ void SurfaceFlinger::setUpHWComposer() {
         if (hwcId < 0) {
             continue;
         }
+
         if (colorMatrix != mPreviousColorMatrix) {
             status_t result = mHwc->setColorTransform(hwcId, colorMatrix);
             ALOGE_IF(result != NO_ERROR, "Failed to set color transform on "
@@ -2046,6 +2050,24 @@ void SurfaceFlinger::setUpHWComposer() {
             newColorMode = pickColorMode(newDataSpace);
 
             setActiveColorModeInternal(displayDevice, newColorMode);
+        }
+
+        mIsSkipThisFrame = false;
+        //Skip a series frames when rotating with HDMI display connected;
+        if (displayDevice->getDisplayType() == HWC_DISPLAY_PRIMARY) {
+            mIsSkipThisFrame = skipFramesBeforRotate(displayDevice, frameIndex, SKIP_FRAMES);
+            for (auto& layer : displayDevice->getVisibleLayersSortedByZ()) {
+                if (strstr(layer->getName().string(), "ScreenshotSurface")) {
+                    int newValue = layer->getDataSpace();
+                    if (mIsSkipThisFrame) {
+                        newValue |= 0xAA;
+                    } else {
+                        newValue &= ~0xAA;
+                    }
+                    layer->setDataSpace((android_dataspace) newValue);
+                    break;
+                }
+            }
         }
     }
 
@@ -2768,6 +2790,47 @@ void SurfaceFlinger::doDisplayComposition(
     displayDevice->swapBuffers(getHwComposer());
 }
 
+bool SurfaceFlinger::skipFramesBeforRotate(const sp<const DisplayDevice>& displayDevice,
+        int& index, int skipFrameNum)
+{
+    bool findTargetLayer = false;
+    bool orientationChanged = false;
+    bool existDisplayExternal = false;
+    static int displayDeviceOrientationOld;
+
+    int displayDeviceOrientationNew = displayDevice->getOrientation();
+    if (displayDeviceOrientationNew != displayDeviceOrientationOld) {
+        orientationChanged = true;
+    }
+
+    for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
+        const sp<DisplayDevice>& hw(mDisplays[dpy]);
+        if (hw->getDisplayType() == HWC_DISPLAY_EXTERNAL && hw->isDisplayOn()) {
+            existDisplayExternal = true;
+            break;
+        }
+    }
+
+    for (auto& layer : displayDevice->getVisibleLayersSortedByZ()) {
+        if (strstr(layer->getName().string(), "ScreenshotSurface")) {
+            findTargetLayer = true;
+            break;
+        }
+    }
+
+    if (orientationChanged && existDisplayExternal && findTargetLayer) {
+        if (index < skipFrameNum){
+            ALOGD("RK_DEBUG: Skip %d frames", ++index);
+            return true;
+        } else {
+            ALOGD("RK_DEBUG: Skip frames done.");
+            index = 0;
+            displayDeviceOrientationOld = displayDeviceOrientationNew;
+        }
+    }
+    return false;
+}
+
 bool SurfaceFlinger::doComposeSurfaces(
         const sp<const DisplayDevice>& displayDevice, const Region& dirty)
 {
@@ -2900,12 +2963,13 @@ bool SurfaceFlinger::doComposeSurfaces(
     if (hwcId >= 0) {
         // we're using h/w composer
         bool firstLayer = true;
+
         for (auto& layer : displayDevice->getVisibleLayersSortedByZ()) {
             const Region clip(dirty.intersect(
                     displayTransform.transform(layer->visibleRegion)));
-            ALOGV("Layer: %s", layer->getName().string());
-            ALOGV("  Composition type: %s",
-                    to_string(layer->getCompositionType(hwcId)).c_str());
+            ALOGV("Composition type: %-12s Layer: %s ",
+                    to_string(layer->getCompositionType(hwcId)).c_str(),
+                    layer->getName().string());
             if (!clip.isEmpty()) {
                 switch (layer->getCompositionType(hwcId)) {
                     case HWC2::Composition::Cursor:
