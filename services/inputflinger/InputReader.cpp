@@ -1422,7 +1422,7 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
         result |= AMOTION_EVENT_BUTTON_PRIMARY;
     }
     if (mBtnRight) {
-        char *targetProduct = new char[PROPERTY_VALUE_MAX];
+        char targetProduct[PROPERTY_VALUE_MAX] = {0};
         property_get("ro.target.product", targetProduct, "");
         if (strcmp(targetProduct, "box") == 0) {
             result |= AMOTION_EVENT_BUTTON_BACK;
@@ -2446,9 +2446,9 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t scanCode,
             if (policyFlags & POLICY_FLAG_GESTURE) {
                 mDevice->cancelTouch(when);
             }
-	char *mKeyMouseState = new char[PROPERTY_VALUE_MAX];
+	char mKeyMouseState[PROPERTY_VALUE_MAX] = {0};
 	property_get("sys.KeyMouse.mKeyMouseState", mKeyMouseState, "off");
-	char *mID = new char[PROPERTY_VALUE_MAX];
+	char mID[PROPERTY_VALUE_MAX] = {0};
 	sprintf(mID,"%d",getDeviceId());
 	property_set("sys.ID.mID",mID);
 
@@ -3175,7 +3175,7 @@ void KeyMouseInputMapper::process(const RawEvent* rawEvent) {
 	mCursorButtonAccumulator.process(rawEvent);
 
 	int mID;
-	char *mgetDeviceID=new char[PROPERTY_VALUE_MAX];
+	char mgetDeviceID[PROPERTY_VALUE_MAX] = {0};
 	property_get("sys.ID.mID", mgetDeviceID,0);
 	mID=atoi(mgetDeviceID);
 
@@ -3193,7 +3193,7 @@ void KeyMouseInputMapper::sync(nsecs_t when) {
     int32_t currentButtonState = mCursorButtonAccumulator.getButtonState();
     mButtonState = currentButtonState;
 
-    char *mKeyLock=new char[PROPERTY_VALUE_MAX];
+    char mKeyLock[PROPERTY_VALUE_MAX] = {0};
     memset(mKeyLock,0,5);
     property_get("sys.KeyMouse.mKeyMouseState", mKeyLock, "off");
 
