@@ -1800,6 +1800,8 @@ void SurfaceFlinger::postComposition(nsecs_t refreshStartTime)
             disableHardwareVsync(false);
         }
     }
+    //RK support: to set DispSync mRefreshSkipCount by property.
+    mPrimaryDispSync.updateRefreshSkipCountByProperty()
 
     if (!hasSyncFramework) {
         if (hw->isDisplayOn()) {
