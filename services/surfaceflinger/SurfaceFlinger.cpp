@@ -1801,7 +1801,7 @@ void SurfaceFlinger::postComposition(nsecs_t refreshStartTime)
         }
     }
     //RK support: to set DispSync mRefreshSkipCount by property.
-    mPrimaryDispSync.updateRefreshSkipCountByProperty()
+    mPrimaryDispSync.updateRefreshSkipCountByProperty();
 
     if (!hasSyncFramework) {
         if (hw->isDisplayOn()) {
