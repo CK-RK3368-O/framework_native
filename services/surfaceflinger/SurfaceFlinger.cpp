@@ -2875,6 +2875,9 @@ bool SurfaceFlinger::skipFramesBeforRotate(const sp<const DisplayDevice>& displa
             mali_r18_workround = false;
             displayDeviceOrientationOld = displayDeviceOrientationNew;
         }
+    }else{
+        mali_r18_workround = false;
+        displayDeviceOrientationOld = displayDeviceOrientationNew;
     }
     return false;
 }
